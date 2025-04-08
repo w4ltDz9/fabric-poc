@@ -4,7 +4,7 @@ using Fabric.Api.Services;
 
 namespace Fabric.Api.Ast;
 
-public class FAnd : IContract
+public class FAnd : INode, IContract
 {
     public FAnd(IEnumerable<IContract> contracts)
     {

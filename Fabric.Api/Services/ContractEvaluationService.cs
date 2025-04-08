@@ -25,8 +25,7 @@ public class ContractEvaluationService
         {
             var exchange_rates = new Dictionary<(DateTime, Ast.Ccy), double>();
 
-            // TODO: Use visitor to find all the keys needed.
-            // Subsequently use a simple model to calculate the rates for each key
+            c.Accept(new RateFetcher(), exchange_rates);
 
             return c.Accept(new ContractEvaluator(), exchange_rates);
         }

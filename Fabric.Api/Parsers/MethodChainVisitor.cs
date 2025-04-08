@@ -1,4 +1,6 @@
 using System;
+using System.Globalization;
+using Fabric.Api.Ast;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -9,6 +11,7 @@ public class MethodChainVisitor : CSharpSyntaxVisitor<MethodChainVisitor.DslNode
 {
     public abstract record DslNode;
     public record Call(string Name, List<DslNode> Args) : DslNode;
+    public record Leaf(string Data) : DslNode;
     public override DslNode VisitInvocationExpression(InvocationExpressionSyntax node)
     {
         var args = new List<DslNode>();
@@ -36,12 +39,12 @@ public class MethodChainVisitor : CSharpSyntaxVisitor<MethodChainVisitor.DslNode
     }
 
     public override DslNode VisitIdentifierName(IdentifierNameSyntax node)
-        => new Call(node.Identifier.Text, new());
+        => new Leaf(node.Identifier.Text);
 
     public override DslNode VisitLiteralExpression(LiteralExpressionSyntax node)
-        => new Call(node.ToString(), new());
+        => new Leaf(node.ToString());
 
-    public static INode ToAst(DslNode node, int indent = 0)
+    public static void ToConsole(DslNode node, int indent = 0)
     {
         var pad = new string(' ', indent * 2);
 
@@ -50,9 +53,48 @@ public class MethodChainVisitor : CSharpSyntaxVisitor<MethodChainVisitor.DslNode
             Console.WriteLine($"{pad}Call: {call.Name}");
             foreach (var arg in call.Args)
             {
-                ToAst(arg, indent + 1);
+                ToConsole(arg, indent + 1);
             }
         }
-        return null; //TODO
+    }
+
+    public static INode ToAst(DslNode node)
+    {
+        if (node is Leaf leaf)
+        {
+            if (Double.TryParse(leaf.Data, out double result_double))
+                return new FDouble(result_double);
+            else if (DateTime.TryParseExact(leaf.Data.Trim().Trim('"'),
+                                            "yyyy-MM-dd",
+                                            CultureInfo.InvariantCulture,
+                                            DateTimeStyles.None,
+                                            out DateTime result_datetime))
+                return new FDate(result_datetime);
+            else if (Enum.TryParse<Ccy>(leaf.Data.Trim().Trim('"'), out Ccy result_ccy))
+                return new FCurrency(result_ccy);
+            throw new ArgumentException($"Unknown leaf data: {leaf.Data}");
+        }
+        else if (node is Call call)
+        {
+            var args = call.Args.Select(arg => ToAst(arg)).ToArray();
+
+            INode ast = call.Name switch
+            {
+                "Pay" when args[0] is FDate date 
+                            && args[1] is FDouble amount 
+                            && args[2] is FCurrency currency
+                    => new FPay(date, amount, currency),
+                "Receive" when args[0] is FDate date 
+                            && args[1] is FDouble amount 
+                            && args[2] is FCurrency currency
+                    => new FPay(date, -amount, currency),
+                "And" when args[0] is IContract c1 
+                            && args[1] is IContract c2 
+                    => new FAnd(new IContract[] {c1, c2}),
+                _ => throw new ApplicationException($"Invalid or unexpected argument types in call: {call.Name}")
+            };
+            return ast;
+        }
+        throw new ApplicationException($"Unknown node type: {node.GetType().Name}");
     }
 }
