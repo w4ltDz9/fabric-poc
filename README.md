@@ -67,20 +67,3 @@ This is a **proof of concept**—keep expectations accordingly. The following fe
 ## 🧪 Status
 
 Fabric is currently in a prototype stage and primarily serves as a foundation for experimentation, learning, or further extension.
-
----
-
-## 🔧 Local Development
-
-Coming soon (or contribute if you're interested!)  
-Feel free to fork and play with it—ideas welcome.
-
----
-
-## 📜 License
-
-MIT (or insert your preferred license here)
-
----
-
-Let me know if you want to add badges, a contributors section, or link to the source code/docs!
