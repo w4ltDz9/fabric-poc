@@ -36,7 +36,9 @@ To get started:
    Example payload:
 
    ```
-   "And(Pay(date, amount1, ccy1), Receive(date, amount2, ccy2))"
+   {
+      "contract": "And(Pay(\"2025-04-30\", 1000000, \"EUR\"), Receive(\"2025-04-30\", 7500000, \"DKK\"))"
+   }
    ```
 
    This script defines a contract where one leg pays a certain amount and the other leg receives another—both on the same date.
