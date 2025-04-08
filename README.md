@@ -29,10 +29,12 @@ The calculation flow follows three main steps:
 
 To get started:
 
+1. Build and run the project.
+
 1. Navigate to:  
    [https://localhost:5001/swagger/index.html](https://localhost:5001/swagger/index.html)
    
-2. Use the `/contract/value` endpoint to **POST** a contract script.  
+1. Use the `/contract/value` endpoint to **POST** a contract script.  
    Example payload:
 
    ```
