@@ -3,5 +3,5 @@ POST http://localhost:5000/contract/value
 Content-Type: application/json
 
 {
-  "contract": "some-contract-id"
+  "contract": "some-contract"
 }
